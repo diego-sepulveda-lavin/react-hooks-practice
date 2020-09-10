@@ -8,22 +8,6 @@ const Ingredients = () => {
   const [userIngredients, setUserIngredients] = useState([])
 
   useEffect(() => {
-    fetch('https://react-hooks-update-bfda3.firebaseio.com/ingredients.json')
-      .then(response => response.json())
-      .then(responseData => {
-        const loadedIngredients = []
-        for (const key in responseData) {
-          loadedIngredients.push({
-            id: key,
-            title: responseData[key].title,
-            amount: responseData[key].amount
-          })
-        }
-        setUserIngredients(loadedIngredients)
-      })
-  }, [])
-
-  useEffect(() => {
     console.log('RENDERING INGREDIENTS', userIngredients)
   }, [userIngredients])
 
@@ -36,18 +20,26 @@ const Ingredients = () => {
       method: 'POST',
       body: JSON.stringify(ingredient),
       headers: { 'Content-Type': 'application/json' }
-    }).then(response => {
-      return response.json()
-    }).then(responseData => {
-      setUserIngredients(prevIngredients => [
-        ...prevIngredients,
-        { id: responseData.name, ...ingredient }
-      ])
     })
+      .then(response => {
+        return response.json()
+      })
+      .then(responseData => {
+        setUserIngredients(prevIngredients => [
+          ...prevIngredients,
+          { id: responseData.name, ...ingredient }
+        ])
+      })
   }
 
   const removeIngredientHandler = ingredientId => {
-    setUserIngredients(prevIngredients => prevIngredients.filter(element => element.id !== ingredientId))
+    fetch(`https://react-hooks-update-bfda3.firebaseio.com/ingredients/${ingredientId}.json`, {
+      method: 'DELETE'
+    })
+      .then(response => {
+        setUserIngredients(prevIngredients => prevIngredients.filter(element => element.id !== ingredientId))
+
+      })
   }
 
   return (
